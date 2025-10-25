@@ -1,9 +1,15 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import EquipmentList from "./components/EquipmentList";
+import RequestForm from "./components/RequestForm";
 function App() {
   return (
-     <div className="min-h-screen flex items-center justify-center bg-blue-500 text-white">
-      <EquipmentList />
-    </div>
+     <Router>
+            <Routes>
+                <Route path="/" element={<EquipmentList />} />
+                <Route path="/new-request/:equipmentId" element={<RequestForm />} />
+            </Routes>
+        </Router>
   );
 }
 

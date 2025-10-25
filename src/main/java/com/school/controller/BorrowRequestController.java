@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/borrowRequest")
+@CrossOrigin(origins = "http://localhost:3000")
 public class BorrowRequestController {
     private final BorrowRequestService borrowService;
 

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getAllEquipment } from "../api/equipmentApi";
+import { useNavigate } from "react-router-dom";
 
 export default function EquipmentList() {
     const [equipment, setEquipment] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [availabilityFilter, setAvailabilityFilter] = useState("All");
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadEquipment();
@@ -114,6 +116,16 @@ export default function EquipmentList() {
                                             {item.quantityAvailable}
                                         </span>
                                     </p>
+                                    <div>
+                                    {item.quantityAvailable > 0 && (
+                                        <button
+                                            onClick={() => navigate(`/new-request/${item.equipmentId}`)}
+                                            className="ml-4 bg-green-600 text-white px-4 py-1 rounded"
+                                        >
+                                            Request
+                                        </button>
+                                    )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
