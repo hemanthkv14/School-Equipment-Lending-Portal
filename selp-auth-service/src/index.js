@@ -22,14 +22,14 @@ function genToken(user) {
 
 // Register
 app.post('/register', async (req, res) => {
-    const { username, password, role_id } = req.body;
+    const { username,email, password, role } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'username and password required' });
 
     try {
         const hash = await bcrypt.hash(password, 10);
         const { rows } = await pool.query(
-            'INSERT INTO users(username, password, role_id) VALUES($1,$2,$3) RETURNING user_id, username',
-            [username, hash, role_id || null]
+            'INSERT INTO users(username,email, password_hash, role) VALUES($1,$2,$3,$4) RETURNING user_id, username',
+            [username,email, hash, role || null]
         );
         const user = rows[0];
         res.status(201).json({ user });
@@ -48,15 +48,15 @@ app.post('/login', async (req, res) => {
     if (!username || !password) return res.status(400).json({ error: 'username and password required' });
 
     try {
-        const { rows } = await pool.query('SELECT user_id, username, password FROM users WHERE username=$1', [username]);
+        const { rows } = await pool.query('SELECT user_id, username, password_hash,role FROM users WHERE username=$1', [username]);
         const user = rows[0];
         if (!user) return res.status(401).json({ error: 'invalid credentials' });
 
-        const ok = await bcrypt.compare(password, user.password);
+        const ok = await bcrypt.compare(password, user.password_hash);
         if (!ok) return res.status(401).json({ error: 'invalid credentials' });
 
         const token = genToken(user);
-        res.json({ token, user: { id: user.id, username: user.username, name: user.name } });
+        res.json({ token, user: { id: user.user_id, username: user.username, role: user.role } });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'internal error' });

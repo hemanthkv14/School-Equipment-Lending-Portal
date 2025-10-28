@@ -21,5 +21,5 @@ app.use('/', createProxyMiddleware({
     changeOrigin: true
 }));
 
-const PORT = 8080;
+const PORT = 8081;
 app.listen(PORT, () => console.log(`API Gateway on ${PORT}`));

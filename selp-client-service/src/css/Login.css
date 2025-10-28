@@ -1,0 +1,90 @@
+/* Full-page background and centering */
+.full-screen-center {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image: linear-gradient(to bottom, #87CEEB, #4682B4);
+}
+
+/* Heading style */
+.page-heading {
+    color: white;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* Panel / card style */
+.login-panel {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px; /* responsive max width */
+    box-sizing: border-box;
+}
+
+/* Panel heading */
+.panel-heading {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+/* Input fields */
+.input-field {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Button */
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    background-color: #4682B4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #355f8d;
+}
+
+/* Error message */
+.error-msg {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+
+/* Greeting & dashboard styling */
+.dashboard-heading {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.dashboard-content {
+    text-align: center;
+    font-size: 1rem;
+    color: #555;
+}
+
+.logout-btn {
+    margin-top: 20px;
+}
