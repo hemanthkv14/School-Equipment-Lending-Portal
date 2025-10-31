@@ -5,7 +5,7 @@
 
 
  cd selp-auth-service 
- Run nom run dev
+ Run npm run dev
  Auth service listening on http://localhost:4000
 
 
@@ -18,6 +18,11 @@ cd selp-equipment-service
 mvn spring-boot:run
 Equipment service listening on http://localhost:8080
 In the current setup , connected to localhost postgres database
+
+cd selp-notification-service 
+Run npm run dev
+This service would run as a cron , that check the duedate and sends an email 2 days before and send the details to notification table . If a message is send it wont send the message again
+
 
 Made slight change to 1 field is users table . This change is to make user_id auto generated
 
