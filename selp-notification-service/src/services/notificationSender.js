@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import mailTransporter from '../config/mailConfig'
+import { mailTransporter } from '../config/mailConfig.js';
 dotenv.config();
 
 

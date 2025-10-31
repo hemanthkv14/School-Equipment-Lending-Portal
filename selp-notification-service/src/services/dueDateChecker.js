@@ -2,7 +2,7 @@ import pool from '../config/db.js';
 import { sendEmail } from './notificationSender.js';
 
 export const checkDueDatesAndNotify = async () => {
-    console.log('🔔 Checking for upcoming due dates...');
+    console.log('Checking for upcoming due dates...');
 
     try {
         const result = await pool.query(`
@@ -43,7 +43,7 @@ export const checkDueDatesAndNotify = async () => {
                 );
 
                 if (existing.rows.length > 0 && existing.rows[0].notification_sent) {
-                    console.log(`ℹ️ Notification already sent for lending_id ${row.lending_id} to ${row.email}`);
+                    console.log(`Notification already sent for lending_id ${row.lending_id} to ${row.email}`);
                     continue;
                 }
 
