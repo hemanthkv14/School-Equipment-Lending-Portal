@@ -23,4 +23,5 @@ Made slight change to 1 field is users table . This change is to make user_id au
 
 ALTER TABLE users ALTER COLUMN user_id DROP DEFAULT;
 ALTER TABLE users ALTER COLUMN user_id ADD GENERATED ALWAYS AS IDENTITY;
+ALTER TABLE notifications ALTER COLUMN message TYPE TEXT;
  
