@@ -1,4 +1,4 @@
-run runAllServices.sh this would do the following . Basically it would bring up all the services
+run runAllServices.sh this would do the following . Basically it would bring up all the services . Before running this make sure that the .env has the corret details of the postgressql details. Currenlty its connectedto local postgressql
  
  cd selp-api-gateway
  Run npm run dev
