@@ -5,6 +5,8 @@ import StaffDashboard from "./components/StaffDashboard";
 import StudentDashboard from "./components/StudentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RegisterUser from "./components/RegisterUser";
+import EquipmentList from "./components/EquipmentList";
+import RequestForm from "./components/RequestForm";
 
 function App() {
     return (
@@ -13,6 +15,8 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<Login />} />
                 <Route path="/register-student" element={<RegisterUser roleRestriction="student" />} />
+                <Route path="/equipment-list" element={<EquipmentList />} />
+                <Route path="/request/:itemId" element={<RequestForm />} />
 
                 {/* Admin-only registration */}
                 <Route

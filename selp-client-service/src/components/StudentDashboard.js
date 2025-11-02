@@ -18,6 +18,10 @@ const StudentDashboard = () => {
         navigate("/");
     };
 
+    const viewEquipments = () => {
+         navigate("/equipment-list");
+    };
+
     return (
         <div className="full-screen-center">
             <div className="login-panel">
@@ -28,6 +32,9 @@ const StudentDashboard = () => {
                 <p className="dashboard-content">
                     You can view available equipment and make borrowing requests here.
                 </p>
+                <button onClick={viewEquipments} className="btn-primary logout-btn">
+                    Go to equipment dashboard
+                </button>
                 <button onClick={handleLogout} className="btn-primary logout-btn">
                     Logout
                 </button>

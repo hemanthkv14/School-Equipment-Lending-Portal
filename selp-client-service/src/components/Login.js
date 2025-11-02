@@ -18,6 +18,7 @@ const Login = () => {
             });
             const { token, user } = response.data;
             localStorage.setItem("token", token);
+            localStorage.setItem("userId", user.id);
             localStorage.setItem("userRole", user.role);
             localStorage.setItem("username", user.username);
 

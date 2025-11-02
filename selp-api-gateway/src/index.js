@@ -5,6 +5,7 @@ const app = express();
 
 const AUTH_TARGET = 'http://localhost:4000';
 const CLIENT_TARGET = 'http://localhost:3000';
+const EQUIPMENT_TARGET = 'http://localhost:8080';
 
 // proxy /register* -> auth-service
 app.use('/api/auth', createProxyMiddleware({
@@ -14,6 +15,11 @@ app.use('/api/auth', createProxyMiddleware({
     pathRewrite: { '^/api/auth': '' }
 }));
 
+app.use('/api', createProxyMiddleware({
+    target: EQUIPMENT_TARGET,
+    changeOrigin: true,
+    pathRewrite: { '^/api': '' },
+  }));
 
 // serve client (static) via proxy to client-service
 app.use('/', createProxyMiddleware({
