@@ -53,12 +53,12 @@ public class LendingController {
         }
     }
 
-    @PostMapping("/return/{lendingId}")
+    @PostMapping("/return/{lendingId}/{borrowerId}")
     public ResponseEntity<String> returnItem(@PathVariable Long lendingId,
-                                             @RequestParam ItemCondition condition) {
+                                             @PathVariable Long borrowerId) {
         try {
-            lendingService.processItemReturn(lendingId, condition);
-            return ResponseEntity.ok("Item returned successfully. Condition updated to: " + condition);
+            lendingService.processItemReturn(lendingId, borrowerId);
+            return ResponseEntity.ok("Item returned request success: " + borrowerId);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -72,6 +72,19 @@ public class LendingController {
         try {
             lendingService.rejectItemLending(lendingId, rejectedById);
             return ResponseEntity.ok("Borrow Request Rejected");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/acceptReturn/{lendingId}")
+    public ResponseEntity<String> acceptReturnItem(@PathVariable Long lendingId, @RequestParam ItemCondition condition) {
+        Long rejectedById = getAuthenticatedUserId();
+        try {
+            lendingService.approveReturnRequest(lendingId, condition);
+            return ResponseEntity.ok("Return Request Approved");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalArgumentException | IllegalStateException e) {

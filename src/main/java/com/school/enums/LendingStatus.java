@@ -4,10 +4,11 @@ import com.school.converter.GenericEnumConverter;
 import jakarta.persistence.Converter;
 
 public enum LendingStatus {
-    PENDING,
+    BORROW_PENDING,
     APPROVED,
     REJECTED,
     OVERDUE,
+    RETURN_PENDING,
     RETURNED;
 
     @Converter(autoApply = true)

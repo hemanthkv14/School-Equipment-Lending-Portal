@@ -2,7 +2,6 @@ package com.school.service;
 
 import com.school.dto.LendingDto;
 import com.school.dto.LendingRequestDto;
-import com.school.entity.DueTracking;
 import com.school.entity.Item;
 import com.school.entity.Lending;
 import com.school.entity.User;
@@ -59,14 +58,14 @@ public class LendingService {
         if (!item.getIsAvailable()) {
             throw new IllegalStateException("Item ID " + dto.getItemId() + " is currently on loan or reserved.");
         }
-        if(lendingRepository.findByItemItemIdAndApprovalStatusIn(item.getItemId(), List.of(LendingStatus.PENDING)).isPresent()) {
+        if(lendingRepository.findByItemItemIdAndApprovalStatusIn(item.getItemId(), List.of(LendingStatus.BORROW_PENDING)).isPresent()) {
             throw new IllegalStateException("Item ID " + dto.getItemId() + " already has a pending lending request.");
         }
         Lending lending = lendingRepository.findByItemItemIdAndApprovalStatusIn(item.getItemId(), List.of(LendingStatus.RETURNED, LendingStatus.REJECTED)).orElse(new Lending());
         lending.setItem(item);
         lending.setBorrower(borrower);
         lending.setRequestDate(LocalDateTime.now());
-        lending.setApprovalStatus(LendingStatus.PENDING);
+        lending.setApprovalStatus(LendingStatus.BORROW_PENDING);
         lending = lendingRepository.save(lending);
 
         dueTrackingService.clearPreviousDueDates(lending.getLendingId());
@@ -74,11 +73,22 @@ public class LendingService {
     }
 
     @Transactional
+    public void processItemReturn(Long lendingId, Long borrowerId) {
+        Lending lending = lendingRepository.findByLendingIdAndApprovalStatusIn(lendingId, List.of(LendingStatus.APPROVED))
+                .orElseThrow(() -> new EntityNotFoundException("No active lending record found "));
+        if (!lending.getBorrower().getUserId().equals(borrowerId)) {
+            throw new IllegalStateException("Borrower ID " + borrowerId + " did not borrow item ID " + lending.getItem().getItemId() + ".");
+        }
+        lending.setApprovalStatus(LendingStatus.RETURN_PENDING);
+        lendingRepository.save(lending);
+    }
+
+    @Transactional
     public void approveLending(Long lendingId, Long issuedById, LocalDateTime dueDate) {
         Lending lending = lendingRepository.findById(lendingId)
                 .orElseThrow(() -> new EntityNotFoundException("Lending record not found."));
 
-        if (!lending.getApprovalStatus().equals(LendingStatus.PENDING)) {
+        if (!lending.getApprovalStatus().equals(LendingStatus.BORROW_PENDING)) {
             throw new IllegalStateException("Lending request is not pending for approval.");
         }
 
@@ -100,11 +110,11 @@ public class LendingService {
     }
 
     @Transactional
-    public void processItemReturn(Long lendingId, ItemCondition returnedCondition) {
+    public void approveReturnRequest(Long lendingId, ItemCondition returnedCondition) {
         Lending lending = lendingRepository.findById(lendingId)
                 .orElseThrow(() -> new EntityNotFoundException("Lending record not found."));
 
-        if (!lending.getApprovalStatus().equals(LendingStatus.APPROVED)) {
+        if (!lending.getApprovalStatus().equals(LendingStatus.RETURN_PENDING)) {
             throw new IllegalStateException("Lending record is not currently an active loan.");
         }
 
@@ -150,7 +160,7 @@ public class LendingService {
         Lending lending = lendingRepository.findById(lendingId)
                 .orElseThrow(() -> new EntityNotFoundException("Lending record not found."));
 
-        if (!lending.getApprovalStatus().equals(LendingStatus.PENDING)) {
+        if (!lending.getApprovalStatus().equals(LendingStatus.BORROW_PENDING)) {
             throw new IllegalStateException("Lending request is not pending for rejection.");
         }
 

@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface LendingRepository extends JpaRepository<Lending, Long> {
     Optional<Lending> findByItemItemIdAndApprovalStatusIn(Long itemId, List<LendingStatus> statusList);
+
+    Optional<Lending> findByLendingIdAndApprovalStatusIn(Long lendingId, List<LendingStatus> statusList);
 }
