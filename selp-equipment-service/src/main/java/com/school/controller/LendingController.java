@@ -39,6 +39,18 @@ public class LendingController {
         }
     }
 
+    @PostMapping("/revoke/{lendingRequestId}")
+    public ResponseEntity<String> revokeLoan(@PathVariable Long lendingRequestId) {
+        try {
+            lendingService.revokeLendingRequest(lendingRequestId);
+            return new ResponseEntity<>("Lending request revoked successfully.", HttpStatus.CREATED);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping("/approve/{lendingId}")
     public ResponseEntity<String> approveLoan(@PathVariable Long lendingId, @RequestParam LocalDateTime dueDate) {
         Long issuedById = getAuthenticatedUserId();
