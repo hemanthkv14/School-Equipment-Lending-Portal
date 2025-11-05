@@ -32,8 +32,8 @@ public class Lending {
     private LendingStatus approvalStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "issued_by_id")
-    private User issuedBy;
+    @JoinColumn(name = "authorized_by")
+    private User authorizedBy;
 
     private LocalDateTime issueDate;
 }

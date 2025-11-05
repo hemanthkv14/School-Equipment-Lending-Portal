@@ -19,7 +19,7 @@ public class DueTracking {
     @Column(name = "lending_id", unique = true, nullable = false)
     private Long lendingId;
 
-    @Column(name = "due_date", nullable = false)
+    @Column(name = "due_date")
     private LocalDateTime dueDate;
 
     @Column(name = "is_overdue")
@@ -27,5 +27,8 @@ public class DueTracking {
 
     @Column(name = "return_date")
     private LocalDateTime returnDate;
+
+    @Column(name = "rejection_date")
+    private LocalDateTime rejectionDate;
 
 }

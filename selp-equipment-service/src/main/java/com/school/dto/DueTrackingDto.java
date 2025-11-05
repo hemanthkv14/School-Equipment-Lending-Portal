@@ -15,4 +15,6 @@ public class DueTrackingDto {
     private LocalDateTime dueDate;
     private Boolean overdue;
     private LocalDateTime returnDate;
+    private LocalDateTime rejectionDate;
+
 }
