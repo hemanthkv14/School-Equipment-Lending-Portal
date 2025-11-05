@@ -8,6 +8,7 @@ const app = express();
 const AUTH_TARGET = 'http://localhost:4000';
 const CLIENT_TARGET = 'http://localhost:3000';
 const EQUIPMENT_TARGET = 'http://localhost:8080';
+const NOTIFICATION_TARGET = 'http://localhost:4001';
 
 
 app.use(cors({
@@ -24,18 +25,29 @@ app.use('/api/auth', createProxyMiddleware({
      pathRewrite: { '^/api/auth': '' } // removing /api/auth from the url
 }));
 
+app.use(
+    "/api/notifications",
+    createProxyMiddleware({
+        target: "http://localhost:4001",
+        changeOrigin: true,
+        pathRewrite: { "^/api/notifications": "" },
+    })
+);
+
 app.use('/api', createProxyMiddleware({
-    target: 'http://localhost:8080',
+    target: EQUIPMENT_TARGET,
     changeOrigin: true,
-    pathRewrite: { '^': '/api' }   // prepend /api to everything after mount
+    pathRewrite: { '^': '/api' } ,
+    timeout: 300000,       // 5 minutes – client socket timeout
+    proxyTimeout: 300000
 }));
 
 
+app.use((req, res, next) => {
+    console.log("Notification service received request:", req.path);
+    next();
+});
 
-// app.use('/api', (req, res, next) => {
-//     console.log(`Gateway forwarding: ${req.method} ${req.originalUrl}`);
-//     next();
-// });
 
 // serve client (static) via proxy to client-service
 app.use('/', createProxyMiddleware({
