@@ -72,6 +72,20 @@ public class LendingService {
         return lending;
     }
 
+
+    public void revokeLendingRequest(Long lendingRequestId) {
+        try {
+            Lending lending = lendingRepository.findById(lendingRequestId)
+                    .orElseThrow(() -> new EntityNotFoundException("Lending request with ID " + lendingRequestId + " not found."));
+            if (!lending.getApprovalStatus().equals(LendingStatus.BORROW_PENDING)) {
+                throw new IllegalStateException("Only pending lending requests can be revoked.");
+            }
+            lendingRepository.deleteById(lendingRequestId);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("Lending request with ID " + lendingRequestId + " not found.");
+        }
+    }
+
     @Transactional
     public void processItemReturn(Long lendingId, Long borrowerId) {
         Lending lending = lendingRepository.findByLendingIdAndApprovalStatusIn(lendingId, List.of(LendingStatus.APPROVED))
