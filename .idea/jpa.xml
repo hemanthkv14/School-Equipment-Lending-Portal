@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="selp-equipment-service" name="selp-equipment-service" framework="JPA" ormUnit="selp-equipment-service:selp-equipment-service" defaultDataSourceId="5c9922a4-4957-42ba-9f2c-ee8b2df84a1f" />
+    </persistence-units>
+  </component>
+</project>

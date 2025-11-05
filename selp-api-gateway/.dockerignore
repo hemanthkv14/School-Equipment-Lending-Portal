@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# VCS
+.git
+.gitignore
+
+# Docker
+.dockerignore
+
+# OS / Editor
+.DS_Store
+.vscode
+.idea
+
+# Build artifacts / caches / logs
+dist
+build
+coverage
+logs
+*.log
+.npm
+npm-cache
+.tmp
