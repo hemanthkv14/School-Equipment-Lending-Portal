@@ -24,3 +24,8 @@ export const createBorrowRequest = async (requestData) => {
     const response = await apiClient.post("/api/borrowRequests/request", requestData);
     return response.data;
   };
+
+export const getAllBorrowRequests = async () => {
+  const response = await apiClient.get("/api/borrowRequests");
+  return response.data;
+};

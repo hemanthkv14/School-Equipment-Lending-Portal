@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
 import StaffDashboard from "./components/StaffDashboard";
@@ -7,16 +7,21 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RegisterUser from "./components/RegisterUser";
 import EquipmentList from "./components/EquipmentList";
 import RequestForm from "./components/RequestForm";
+import MyRequests from "./components/MyRequests";
+import Navbar from "./components/Navbar";
 
 function App() {
     return (
         <Router>
+            <Navbar />
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Login />} />
                 <Route path="/register-student" element={<RegisterUser roleRestriction="student" />} />
                 <Route path="/equipment-list" element={<EquipmentList />} />
+                <Route path="/my-requests" element={<MyRequests />} />
                 <Route path="/request/:itemId" element={<RequestForm />} />
+                <Route path="*" element={<Navigate to="/equipment-list" />} />
 
                 {/* Admin-only registration */}
                 <Route

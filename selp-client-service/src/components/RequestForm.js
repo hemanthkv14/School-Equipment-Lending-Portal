@@ -30,7 +30,7 @@ export default function RequestForm() {
                     Confirm Request
                 </h1>
                 <p className="text-gray-600 mb-6 text-center">
-                    Are you sure you want to request Item ID ?
+                    Are you sure you want to request this item ?
                 </p>
                 <div className="flex justify-center gap-4">
                     <button
