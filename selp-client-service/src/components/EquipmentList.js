@@ -131,7 +131,6 @@ export default function EquipmentList() {
         ))}
       </div>
 
-      {/* ✅ Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div

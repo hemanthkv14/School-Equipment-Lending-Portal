@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
 import StaffDashboard from "./components/StaffDashboard";
@@ -10,10 +10,13 @@ import RequestForm from "./components/RequestForm";
 import MyRequests from "./components/MyRequests";
 import Navbar from "./components/Navbar";
 
-function App() {
+function AppContent() {
+    const location = useLocation();
+    const hideNavbar = location.pathname === "/" || location.pathname.startsWith("/register");
+
     return (
-        <Router>
-            <Navbar />
+        <>
+            {!hideNavbar && <Navbar />}
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Login />} />
@@ -63,6 +66,14 @@ function App() {
                     }
                 />
             </Routes>
+        </>
+    );
+}
+
+function App() {
+    return (
+        <Router>
+            <AppContent />
         </Router>
     );
 }
