@@ -29,3 +29,26 @@ export const getAllBorrowRequests = async () => {
   const response = await apiClient.get("/api/borrowRequests");
   return response.data;
 };
+
+export const updateEquipmentItem = async (updateData) => {
+    const response = await apiClient.put("/api/equipment/items/update", updateData);
+    return response.data;
+  };
+
+
+export const deleteIndividualItem = async (itemId) => {
+  const response = await apiClient.delete(`/api/equipment/items/${itemId}`);
+  return response.data;
+};
+
+export const deleteAllItems = async (itemIds) => {
+  const response = await apiClient.delete(`/api/equipment/deleteAllItems`, {
+    data: itemIds,
+  });
+  return response.data;
+};
+
+export const deleteEquipment = async (equipmentId) => {
+  const response = await apiClient.delete(`/api/equipment/delete/${equipmentId}`);
+  return response.data;
+};

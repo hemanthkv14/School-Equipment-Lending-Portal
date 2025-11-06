@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/Login.css";
 
 const AdminDashboard = () => {
     const [username, setUsername] = useState("");
@@ -22,6 +21,10 @@ const AdminDashboard = () => {
         navigate("/register");
     };
 
+    const viewEquipments = () => {
+         navigate("/admin-equipment-list");
+    };
+
     return (
         <div className="full-screen-center">
             <div className="login-panel">
@@ -32,7 +35,9 @@ const AdminDashboard = () => {
                 <p className="dashboard-content">
                     You can manage equipment, users, and view system reports here.
                 </p>
-
+                <button onClick={viewEquipments} className="btn-primary logout-btn">
+                    Go to equipment dashboard
+                </button>
                 <button onClick={goToRegister} className="btn-primary" style={{ marginTop: "15px" }}>
                     Register New User
                 </button>
