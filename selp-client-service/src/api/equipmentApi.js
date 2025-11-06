@@ -52,3 +52,8 @@ export const deleteEquipment = async (equipmentId) => {
   const response = await apiClient.delete(`/api/equipment/delete/${equipmentId}`);
   return response.data;
 };
+
+export const notificationApi = async (userId) => {
+  const response = await apiClient.get(`/api/notifications/dueDetails/${userId}`);
+  return response.data;
+};
