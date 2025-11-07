@@ -10,18 +10,37 @@ import {
   updateEquipment,
 } from "../api/equipmentApi";
 
+const useToast = () => {
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
+
+  const showToast = (msg, toastType = "success") => {
+    setMessage(msg);
+    setType(toastType);
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  return { message, type, showToast };
+};
+
 export default function AdminEquipmentList() {
+  const {
+    message: successMessage,
+    type: messageType,
+    showToast
+  } = useToast();
+
   const [equipment, setEquipment] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
-  const [selectedEquipmentToEdit, setSelectedEquipmentToEdit] = useState(null); // New state for editing equipment
+  const [selectedEquipmentToEdit, setSelectedEquipmentToEdit] = useState(null);
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItemModal, setShowItemModal] = useState(false);
-  const [showEditItemModal, setShowEditItemModal] = useState(false); // Renamed for clarity
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showEquipmentModal, setShowEquipmentModal] = useState(false);
-  const [showEditEquipmentModal, setShowEditEquipmentModal] = useState(false); // New state for Update Equipment Modal
+  const [showEditEquipmentModal, setShowEditEquipmentModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newEquipmentData, setNewEquipmentData] = useState({
     name: "",
@@ -29,14 +48,12 @@ export default function AdminEquipmentList() {
     totalQuantity: 0,
     quantityAvailable: 0,
   });
-  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     loadEquipment();
     loadCategories();
   }, []);
 
-  // --- Load Data Functions ---
   const loadEquipment = async () => {
     try {
       const data = await getAllEquipment();
@@ -66,7 +83,6 @@ export default function AdminEquipmentList() {
     }
   };
 
-  // --- Item Edit Functions ---
   const openEditItemModal = (item) => {
     setSelectedItem({ ...item });
     setShowEditItemModal(true);
@@ -77,17 +93,14 @@ export default function AdminEquipmentList() {
       await updateEquipmentItem(selectedItem);
       await openItems(selectedEquipment);
       setShowEditItemModal(false);
-      setSuccessMessage("Item updated successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      showToast("Item updated successfully!");
     } catch (err) {
       console.error("Error updating item:", err);
+      showToast("Failed to update item.", "error");
     }
   };
 
-  // --- Equipment Update Functions ---
   const openEditEquipmentModal = (equipment) => {
-    // Note: categoryId might be nested or named differently in the response,
-    // assuming it's directly on the equipment object for now.
     setSelectedEquipmentToEdit({
         equipmentId: equipment.equipmentId,
         name: equipment.name,
@@ -99,8 +112,11 @@ export default function AdminEquipmentList() {
   };
 
   const handleUpdateEquipment = async () => {
-      if (!selectedEquipmentToEdit.name.trim() || !selectedEquipmentToEdit.categoryId || selectedEquipmentToEdit.totalQuantity < 0) {
-          alert("Please fill all fields.");
+      const name = selectedEquipmentToEdit.name.trim();
+      const totalQuantity = parseInt(selectedEquipmentToEdit.totalQuantity);
+
+      if (!name || !selectedEquipmentToEdit.categoryId || totalQuantity < 0) {
+          showToast("Please ensure all fields are filled and quantities are valid.", "error");
           return;
       }
 
@@ -108,44 +124,50 @@ export default function AdminEquipmentList() {
           const dataToSend = {
               ...selectedEquipmentToEdit,
               categoryId: parseInt(selectedEquipmentToEdit.categoryId),
-              totalQuantity: parseInt(selectedEquipmentToEdit.totalQuantity),
-              quantityAvailable: parseInt(selectedEquipmentToEdit.quantityAvailable), // Ensure these are ints
+              totalQuantity: totalQuantity,
+              quantityAvailable: parseInt(selectedEquipmentToEdit.quantityAvailable),
           };
 
-          await updateEquipment(dataToSend); // API call to update equipment
-          await loadEquipment(); // Refresh the main list
+          await updateEquipment(dataToSend);
+          await loadEquipment();
           setShowEditEquipmentModal(false);
-          setSuccessMessage(`Equipment "${dataToSend.name}" updated successfully!`);
-          setTimeout(() => setSuccessMessage(""), 3000);
+          showToast(`Equipment "${dataToSend.name}" updated successfully!`);
       } catch (err) {
           console.error("Error updating equipment:", err);
-          alert("Failed to update equipment.");
+          showToast("Failed to update equipment.", "error");
       }
   };
 
-  // --- Add Category Functions ---
   const handleAddCategory = async () => {
-    if (!newCategoryName.trim()) {
-      alert("Category name cannot be empty.");
+    const categoryNameToSend = newCategoryName.trim();
+
+    if (!categoryNameToSend) {
+      showToast("Category name cannot be empty.", "error");
       return;
     }
     try {
-      await addNewCategory({ name: newCategoryName });
+      await addNewCategory({ name: categoryNameToSend });
       await loadCategories();
       setShowCategoryModal(false);
       setNewCategoryName("");
-      setSuccessMessage("Category added successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      showToast("Category added successfully!");
     } catch (err) {
       console.error("Error adding category:", err);
-      alert("Failed to add category.");
+
+      let errorMessage = "Failed to add category. Please check the network.";
+      if (err.response && err.response.status === 409) {
+          errorMessage = `A category named "${categoryNameToSend}" already exists. Please use a different name.`;
+      }
+      showToast(errorMessage, "error");
     }
   };
 
-  // --- Add Equipment Functions ---
   const handleAddEquipment = async () => {
-    if (!newEquipmentData.name.trim() || !newEquipmentData.categoryId || newEquipmentData.totalQuantity <= 0) {
-      alert("Please fill all fields and ensure Total Quantity is greater than 0.");
+    const name = newEquipmentData.name.trim();
+    const totalQuantity = parseInt(newEquipmentData.totalQuantity);
+
+    if (!name || !newEquipmentData.categoryId || totalQuantity <= 0) {
+      showToast("Please fill all fields and ensure Total Quantity is greater than 0.", "error");
       return;
     }
 
@@ -153,8 +175,9 @@ export default function AdminEquipmentList() {
       const dataToSend = {
         ...newEquipmentData,
         categoryId: parseInt(newEquipmentData.categoryId),
-        totalQuantity: parseInt(newEquipmentData.totalQuantity),
-        quantityAvailable: parseInt(newEquipmentData.totalQuantity),
+        totalQuantity: totalQuantity,
+        quantityAvailable: totalQuantity,
+        name: name,
       };
 
       await addNewEquipment(dataToSend);
@@ -166,15 +189,17 @@ export default function AdminEquipmentList() {
         totalQuantity: 0,
         quantityAvailable: 0,
       });
-      setSuccessMessage("Equipment added successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      showToast("Equipment added successfully!");
     } catch (err) {
       console.error("Error adding equipment:", err);
-      alert("Failed to add equipment.");
+       let errorMessage = "Failed to add equipment. Please check the network.";
+       if (err.response && err.response.status === 409) {
+           errorMessage = `An equipment named "${name}" already exists. Please use a different name.`;
+       }
+       showToast(errorMessage, "error");
     }
   };
 
-  // --- Render ---
   return (
     <div className="w-full min-h-screen bg-gray-50 py-10 px-4 text-gray-800">
       {successMessage && (
@@ -182,8 +207,13 @@ export default function AdminEquipmentList() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 bg-green-100 border border-green-400 text-green-700 rounded-lg shadow-xl z-[100] max-w-lg w-full text-center font-medium">
-          ✅ {successMessage}
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-xl z-[100] max-w-lg w-full text-center font-medium
+            ${messageType === 'success'
+              ? 'bg-green-100 border border-green-400 text-green-700'
+              : 'bg-red-100 border border-red-400 text-red-700'}`
+          }
+        >
+          {messageType === 'success' ? '✅' : '❌'} {successMessage}
         </motion.div>
       )}
 
@@ -199,7 +229,7 @@ export default function AdminEquipmentList() {
         <button
           onClick={() => {
             if (categories.length === 0) {
-              alert("Please add a category first.");
+              showToast("Please add a category first.", "error");
               return;
             }
             setShowEquipmentModal(true);

@@ -40,7 +40,6 @@ export const  updateEquipment = async (updateData) => {
   return response.data;
 };
 
-
 export const deleteIndividualItem = async (itemId) => {
   const response = await apiClient.delete(`/api/equipment/items/${itemId}`);
   return response.data;
