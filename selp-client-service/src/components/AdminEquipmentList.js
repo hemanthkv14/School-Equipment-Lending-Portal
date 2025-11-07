@@ -8,6 +8,9 @@ import {
   addNewEquipment,
   getAllCategories,
   updateEquipment,
+  deleteIndividualItem,
+  deleteAllItems,
+  deleteEquipment,
 } from "../api/equipmentApi";
 
 const useToast = () => {
@@ -48,6 +51,9 @@ export default function AdminEquipmentList() {
     totalQuantity: 0,
     quantityAvailable: 0,
   });
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteAction, setDeleteAction] = useState(null);
 
   useEffect(() => {
     loadEquipment();
@@ -77,6 +83,7 @@ export default function AdminEquipmentList() {
       setSelectedEquipment(equipmentId);
       const data = await getAllItemDetails(equipmentId);
       setItems(Array.isArray(data) ? data : []);
+      setSelectedItems([]);
       setShowItemModal(true);
     } catch {
       console.log("Error loading items");
@@ -200,6 +207,76 @@ export default function AdminEquipmentList() {
     }
   };
 
+  const handleDeleteItem = (itemId) => {
+    setDeleteAction({ type: 'item', id: itemId });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteSelectedItems = () => {
+    if (selectedItems.length === 0) {
+      showToast("Please select items to delete.", "error");
+      return;
+    }
+    setDeleteAction({ type: 'items', ids: selectedItems });
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteEquipment = async (equipmentId) => {
+    try {
+      const data = await getAllItemDetails(equipmentId);
+      if (Array.isArray(data) && data.length > 0) {
+        showToast("Cannot delete equipment. Please delete all items first.", "error");
+        return;
+      }
+      setDeleteAction({ type: 'equipment', id: equipmentId });
+      setShowDeleteConfirm(true);
+    } catch (err) {
+      console.error("Error checking equipment items:", err);
+      showToast("Failed to verify equipment status.", "error");
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (deleteAction.type === 'item') {
+        await deleteIndividualItem(deleteAction.id);
+        await openItems(selectedEquipment);
+        showToast("Item deleted successfully!");
+      } else if (deleteAction.type === 'items') {
+        await deleteAllItems(deleteAction.ids);
+        await openItems(selectedEquipment);
+        setSelectedItems([]);
+        showToast("Selected items deleted successfully!");
+      } else if (deleteAction.type === 'equipment') {
+        await deleteEquipment(deleteAction.id);
+        await loadEquipment();
+        showToast("Equipment deleted successfully!");
+      }
+    } catch (err) {
+      console.error("Error deleting:", err);
+      showToast("Failed to delete.", "error");
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteAction(null);
+    }
+  };
+
+  const toggleItemSelection = (itemId) => {
+    setSelectedItems(prev =>
+      prev.includes(itemId)
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === items.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(items.map(item => item.itemId));
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-gray-50 py-10 px-4 text-gray-800">
       {successMessage && (
@@ -262,6 +339,12 @@ export default function AdminEquipmentList() {
                 >
                     View Items
                 </button>
+                <button
+                    onClick={() => handleDeleteEquipment(item.equipmentId)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                >
+                    Delete
+                </button>
               </div>
             </div>
           </motion.div>
@@ -278,6 +361,7 @@ export default function AdminEquipmentList() {
               onClick={() => {
                 setShowItemModal(false);
                 setItems([]);
+                setSelectedItems([]);
               }}
               className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl"
             >
@@ -288,6 +372,28 @@ export default function AdminEquipmentList() {
               Items for this Equipment
             </h2>
 
+            {items.length > 0 && (
+              <div className="mb-4 flex justify-between items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === items.length && items.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Select All</span>
+                </label>
+                {selectedItems.length > 0 && (
+                  <button
+                    onClick={handleDeleteSelectedItems}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  >
+                    Delete Selected ({selectedItems.length})
+                  </button>
+                )}
+              </div>
+            )}
+
             {items.length > 0 ? (
               <div className="grid gap-6 grid-cols-1">
                 {items.map((it) => (
@@ -296,21 +402,37 @@ export default function AdminEquipmentList() {
                     className="bg-gray-50 rounded-xl shadow p-6 border border-gray-100 flex justify-between items-center"
                     whileHover={{ scale: 1.01 }}
                   >
-                    <div>
-                      <p className="text-lg font-semibold text-gray-800">{it.equipmentName}</p>
-                      <p className="text-sm text-gray-500">Serial: {it.serialNumber}</p>
-                      <p className="text-sm text-gray-500">Condition: {it.condition}</p>
-                      <p className={`text-sm font-semibold ${it.isAvailable ? "text-green-600" : "text-red-600"}`}>
-                        {it.isAvailable ? "Available" : "Unavailable"}
-                      </p>
+                    <div className="flex items-center gap-4 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(it.itemId)}
+                        onChange={() => toggleItemSelection(it.itemId)}
+                        className="w-5 h-5 cursor-pointer"
+                      />
+                      <div>
+                        <p className="text-lg font-semibold text-gray-800">{it.equipmentName}</p>
+                        <p className="text-sm text-gray-500">Serial: {it.serialNumber}</p>
+                        <p className="text-sm text-gray-500">Condition: {it.condition}</p>
+                        <p className={`text-sm font-semibold ${it.isAvailable ? "text-green-600" : "text-red-600"}`}>
+                          {it.isAvailable ? "Available" : "Unavailable"}
+                        </p>
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => openEditItemModal(it)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      Edit
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditItemModal(it)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(it.itemId)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -395,6 +517,40 @@ export default function AdminEquipmentList() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md"
+          >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Confirm Delete</h2>
+            <p className="text-gray-600 mb-6">
+              {deleteAction?.type === 'item' && "Are you sure you want to delete this item? This action cannot be undone."}
+              {deleteAction?.type === 'items' && `Are you sure you want to delete ${deleteAction.ids.length} selected item(s)? This action cannot be undone.`}
+              {deleteAction?.type === 'equipment' && "Are you sure you want to delete this equipment? This action cannot be undone."}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteAction(null);
+                }}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
 
