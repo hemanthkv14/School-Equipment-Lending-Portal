@@ -35,6 +35,10 @@ export const updateEquipmentItem = async (updateData) => {
     return response.data;
   };
 
+export const  updateEquipment = async (updateData) => {
+  const response = await apiClient.put("/api/equipment/update", updateData);
+  return response.data;
+};
 
 export const deleteIndividualItem = async (itemId) => {
   const response = await apiClient.delete(`/api/equipment/items/${itemId}`);
@@ -55,5 +59,15 @@ export const deleteEquipment = async (equipmentId) => {
 
 export const notificationApi = async (userId) => {
   const response = await apiClient.get(`/api/notifications/dueDetails/${userId}`);
+  return response.data;
+};
+
+export const addNewCategory = async (data) => {
+  const response = await apiClient.post("/api/categories/add",data);
+  return response.data;
+};
+
+export const addNewEquipment = async (data) => {
+  const response = await apiClient.post("/api/equipment/add",data);
   return response.data;
 };
