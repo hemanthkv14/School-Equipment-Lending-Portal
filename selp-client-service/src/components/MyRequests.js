@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  getAllBorrowRequests,
+  getAllLendingsOfUser,
   cancelRequest,
   returnItem,
   createBorrowRequest,
@@ -11,13 +11,13 @@ export default function MyRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const userId = localStorage.getItem("userId");
 
-  // Shared fetch function so we can refresh after actions
   const fetchRequests = async () => {
     setLoading(true);
     setError("");
     try {
-      const data = await getAllBorrowRequests();
+      const data = await getAllLendingsOfUser(userId);
       setRequests(data || []);
     } catch (err) {
       console.error("Error loading requests:", err);
@@ -58,7 +58,6 @@ export default function MyRequests() {
       await fetchRequests();
     } catch (err) {
       console.error("Failed to return item:", err);
-      alert("Failed to return item");
     }
   };
 
@@ -68,7 +67,6 @@ export default function MyRequests() {
       await fetchRequests();
     } catch (err) {
       console.error("Failed to retry request:", err);
-      alert("Failed to retry request");
     }
   };
 
@@ -151,6 +149,7 @@ export default function MyRequests() {
                             Completed
                         </div>
                     )}
+
                   </div>
                 </div>
               </motion.div>
