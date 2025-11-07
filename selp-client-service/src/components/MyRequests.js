@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { getAllBorrowRequests } from "../api/equipmentApi";
+import {
+  getAllBorrowRequests,
+  cancelRequest,
+  returnItem,
+  createBorrowRequest,
+} from "../api/equipmentApi";
 
 export default function MyRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Shared fetch function so we can refresh after actions
+  const fetchRequests = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getAllBorrowRequests();
+      setRequests(data || []);
+    } catch (err) {
+      console.error("Error loading requests:", err);
+      setError("Failed to load your borrow requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const data = await getAllBorrowRequests();
-        setRequests(data || []);
-      } catch (err) {
-        console.error("Error loading requests:", err);
-        setError("Failed to load your borrow requests.");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRequests();
   }, []);
 
@@ -33,6 +42,36 @@ export default function MyRequests() {
     RETURNED: "bg-gray-100 text-gray-600 border-gray-300",
   };
 
+  const handleCancel = async (lendingId) => {
+    try {
+      await cancelRequest(lendingId);
+      await fetchRequests();
+    } catch (err) {
+      console.error("Failed to cancel request:", err);
+      alert("Failed to cancel request");
+    }
+  };
+
+  const handleReturn = async (lendingId, borrowerId) => {
+    try {
+      await returnItem({ lendingId, borrowerId });
+      await fetchRequests();
+    } catch (err) {
+      console.error("Failed to return item:", err);
+      alert("Failed to return item");
+    }
+  };
+
+  const handleRetry = async (requestData) => {
+    try {
+      await createBorrowRequest(requestData);
+      await fetchRequests();
+    } catch (err) {
+      console.error("Failed to retry request:", err);
+      alert("Failed to retry request");
+    }
+  };
+
   if (loading) return <p className="text-center mt-10">Loading your requests...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
@@ -40,9 +79,7 @@ export default function MyRequests() {
     <div className="w-full min-h-screen py-10 px-4 text-gray-800 bg-gray-50">
       <header className="text-center mb-10">
         <h1 className="text-4xl font-bold text-slate-800">My Requests</h1>
-        <p className="text-gray-600 mt-2">
-          View and manage your borrow requests
-        </p>
+        <p className="text-gray-600 mt-2">View and manage your borrow requests</p>
       </header>
 
       <div className="max-w-5xl mx-auto grid gap-8 grid-cols-1">
@@ -51,6 +88,7 @@ export default function MyRequests() {
         ) : (
           requests.map((req, i) => {
             const status = normalizeStatus(req.approvalStatus);
+            const borrowerId = req.borrowerId; // Assuming this exists
 
             return (
               <motion.div
@@ -72,22 +110,34 @@ export default function MyRequests() {
 
                   <div className="flex justify-end min-w-[150px]">
                     {status === "BORROW_PENDING" && (
-                      <button className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+                      <button
+                        onClick={() => handleCancel(req.lendingId)}
+                        className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                      >
                         Cancel Request
                       </button>
                     )}
                     {status === "APPROVED" && (
-                      <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                      <button
+                        onClick={() => handleReturn(req.lendingId, borrowerId)}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                      >
                         Return
                       </button>
                     )}
                     {status === "REJECTED" && (
-                      <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                      <button
+                        onClick={() => handleRetry(req)}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                      >
                         Retry
                       </button>
                     )}
                     {status === "OVERDUE" && (
-                      <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                      <button
+                        onClick={() => handleReturn(req.lendingId, borrowerId)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                      >
                         Return Immediately
                       </button>
                     )}

@@ -141,6 +141,14 @@ export default function Navbar() {
                 Manage Equipment
               </NavLink>
               <NavLink
+                to="/admin-requests"
+                className={({ isActive }) =>
+                  `text-lg ${isActive ? "font-semibold underline" : "hover:underline"}`
+                }
+              >
+                All Requests
+              </NavLink>
+              <NavLink
                 to="/admin-dashboard"
                 className={({ isActive }) =>
                   `text-lg ${isActive ? "font-semibold underline" : "hover:underline"}`
@@ -152,14 +160,24 @@ export default function Navbar() {
           )}
 
           {role === "staff" && (
-            <NavLink
-              to="/staff-dashboard"
-              className={({ isActive }) =>
-                `text-lg ${isActive ? "font-semibold underline" : "hover:underline"}`
-              }
-            >
-              Review Requests
-            </NavLink>
+            <>
+              <NavLink
+                to="/admin-requests"
+                className={({ isActive }) =>
+                  `text-lg ${isActive ? "font-semibold underline" : "hover:underline"}`
+                }
+              >
+                All Requests
+              </NavLink>
+              <NavLink
+                to="/staff-dashboard"
+                className={({ isActive }) =>
+                  `text-lg ${isActive ? "font-semibold underline" : "hover:underline"}`
+                }
+              >
+                Dashboard
+              </NavLink>
+            </>
           )}
 
           {username && (
