@@ -190,4 +190,10 @@ public class LendingService {
 
         notificationService.createNotification(lending.getBorrower(), approvedLending, LendingStatus.REJECTED.name(), "Your loan for " + item.getEquipment().getName() + " has been rejected.");
     }
+
+    public List<LendingDto> getAllLendingsDtoByUser(Long userId) {
+        return lendingRepository.findByBorrowerUserId(userId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 }
