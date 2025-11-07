@@ -71,3 +71,33 @@ export const addNewEquipment = async (data) => {
   const response = await apiClient.post("/api/equipment/add",data);
   return response.data;
 };
+
+export const cancelRequest = async (lendingRequestId) => {
+  const response = await apiClient.post("/api/borrowRequests/revoke", { lendingRequestId });
+  return response.data;
+}
+
+export const returnItem = async (data) => {
+    const { lendingId, borrowerId } = data;
+    const response = await apiClient.post(`/api/borrowRequests/return/${lendingId}/${borrowerId}`);
+    return response.data;
+}
+
+export const getAllLendings = async () => {
+  const response = await apiClient.get("/api/borrowRequests"); 
+  return response.data;
+};
+
+export const approveLoan = async (lendingId, dueDate) => {
+  const response = await apiClient.post(`/api/borrowRequests/approve/${lendingId}`, null, {
+    params: { dueDate },
+  });
+  return response.data;
+};
+
+export const acceptReturnItem = async (lendingId, condition) => {
+  const response = await apiClient.post(`/api/borrowRequests/acceptReturn/${lendingId}`, null, {
+    params: { condition },
+  });
+  return response.data;
+};
