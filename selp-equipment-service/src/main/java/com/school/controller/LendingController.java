@@ -109,4 +109,10 @@ public class LendingController {
         List<LendingDto> lendings = lendingService.getAllLendingsDto();
         return ResponseEntity.ok(lendings);
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<LendingDto>> getAllLendingsForUser(@PathVariable Long userId) {
+        List<LendingDto> lendings = lendingService.getAllLendingsDtoByUser(userId);
+        return ResponseEntity.ok(lendings);
+    }
 }
