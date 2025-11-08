@@ -1,0 +1,145 @@
+services:
+  # 1. POSTGRESQL DATABASE
+  selp-db:
+    image: postgres:16-alpine
+    container_name: selp-postgres
+    environment:
+      POSTGRES_USER: selp_user
+      POSTGRES_PASSWORD: selp_password
+      POSTGRES_DB: selp_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./selp-equipment-service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./selp-equipment-service/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U selp_user -d selp_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - selp-network
+
+  # 2. SPRING BOOT SERVICE (SELP-EQUIPMENT-SERVICE)
+  selp-equipment-service:
+    build:
+      context: ./selp-equipment-service
+      dockerfile: Dockerfile
+    container_name: selp-equipment
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://selp-db:5432/selp_db
+      SPRING_DATASOURCE_USERNAME: selp_user
+      SPRING_DATASOURCE_PASSWORD: selp_password
+    depends_on:
+      selp-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - selp-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/equipment || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 3. AUTH SERVICE
+  selp-auth-service:
+    build:
+      context: ./selp-auth-service
+      dockerfile: Dockerfile
+    container_name: selp-auth
+    environment:
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-selp_secret_key_change_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      PGHOST: selp-db
+      PGUSER: selp_user
+      PGPASSWORD: selp_password
+      PGDATABASE: selp_db
+      PGPORT: 5432
+    depends_on:
+      selp-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - selp-network
+
+  # 4. NOTIFICATION SERVICE
+  selp-notification-service:
+    build:
+      context: ./selp-notification-service
+      dockerfile: Dockerfile
+    container_name: selp-notification
+    environment:
+      PORT: 4001
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 0 * * *}
+      PG_HOST: selp-db
+      PG_USER: selp_user
+      PG_PASS: selp_password
+      PG_DB: selp_db
+      PG_PORT: 5432
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+    depends_on:
+      selp-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - selp-network
+
+  # 5. API GATEWAY
+  selp-api-gateway:
+    build:
+      context: ./selp-api-gateway
+      dockerfile: Dockerfile
+    container_name: selp-gateway
+    ports:
+      - "8081:8081"
+    environment:
+      PORT: 8081
+      AUTH_SERVICE_URL: http://selp-auth-service:4000
+      EQUIPMENT_SERVICE_URL: http://selp-equipment-service:8080
+      NOTIFICATION_SERVICE_URL: http://selp-notification-service:4001
+      CLIENT_SERVICE_URL: http://selp-client-service:3000
+      CLIENT_ORIGIN: http://localhost:3000
+    depends_on:
+      - selp-auth-service
+      - selp-equipment-service
+      - selp-notification-service
+      # Note: Client service is not in depends_on to avoid circular dependency
+      # API Gateway can start and will proxy to client service once it's ready
+    restart: unless-stopped
+    networks:
+      - selp-network
+
+  # 6. CLIENT SERVICE (React Frontend)
+  selp-client-service:
+    build:
+      context: ./selp-client-service
+      dockerfile: Dockerfile
+    container_name: selp-client
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8081
+    depends_on:
+      - selp-api-gateway
+    restart: unless-stopped
+    networks:
+      - selp-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  selp-network:
+    driver: bridge

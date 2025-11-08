@@ -1,7 +1,19 @@
-FROM node:18-alpine
+FROM node:20-alpine
+
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
-RUN npm ci --only=production
+
+# Install dependencies (production only)
+# Using npm install instead of npm ci for better compatibility with lock files
+RUN npm install --omit=dev --no-audit --no-fund
+
+# Copy source code
 COPY . .
+
+# Expose port
 EXPOSE 8081
-CMD ["node", "index.js"]
+
+# Start the application
+CMD ["node", "src/index.js"]
