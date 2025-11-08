@@ -13,7 +13,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "selp_secret";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
-const HOST = '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0'; // Listen on all interfaces for Docker
 
 // Helper: generate token
 function genToken(user) {
@@ -64,6 +64,6 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.listen(PORT,HOST, () => {
+app.listen(PORT, HOST, () => {
     console.log(`Auth service listening on ${HOST}:${PORT}`);
 });
