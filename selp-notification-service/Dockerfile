@@ -13,7 +13,8 @@ RUN npm install --omit=dev --no-audit --no-fund
 COPY . .
 
 # Expose port
-EXPOSE 4000
+EXPOSE 4001
 
 # Start the application
 CMD ["node", "src/index.js"]
+
