@@ -72,7 +72,7 @@ public class LendingController {
         }
     }
 
-    @PostMapping("/reject/{lendingId}/user/{userId}")
+    @PostMapping("/reject/{lendingId}/user/{rejectedById}")
     public ResponseEntity<String> rejectItem(@PathVariable Long lendingId, @PathVariable Long rejectedById) {
         try {
             lendingService.rejectItemLending(lendingId, rejectedById);
