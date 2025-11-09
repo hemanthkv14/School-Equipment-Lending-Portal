@@ -23,10 +23,6 @@ public class LendingController {
         this.lendingService = lendingService;
     }
 
-    private Long getAuthenticatedUserId() {
-        return 2L;
-    }
-
     @PostMapping("/request")
     public ResponseEntity<String> requestLoan(@RequestBody LendingRequestDto dto) {
         try {
@@ -51,12 +47,10 @@ public class LendingController {
         }
     }
 
-    @PostMapping("/approve/{lendingId}")
-    public ResponseEntity<String> approveLoan(@PathVariable Long lendingId, @RequestParam LocalDateTime dueDate) {
-        Long issuedById = getAuthenticatedUserId();
-
+    @PostMapping("/approve/{lendingId}/user/{userId}")
+    public ResponseEntity<String> approveLoan(@PathVariable Long lendingId, @PathVariable Long userId, @RequestParam LocalDateTime dueDate) {
         try {
-            lendingService.approveLending(lendingId, issuedById, dueDate);
+            lendingService.approveLending(lendingId, userId, dueDate);
             return new ResponseEntity<>("Loan ID " + lendingId + " approved and item issued.", HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -78,9 +72,8 @@ public class LendingController {
         }
     }
 
-    @PostMapping("/reject/{lendingId}")
-    public ResponseEntity<String> rejectItem(@PathVariable Long lendingId) {
-        Long rejectedById = getAuthenticatedUserId();
+    @PostMapping("/reject/{lendingId}/user/{userId}")
+    public ResponseEntity<String> rejectItem(@PathVariable Long lendingId, @PathVariable Long rejectedById) {
         try {
             lendingService.rejectItemLending(lendingId, rejectedById);
             return ResponseEntity.ok("Borrow Request Rejected");
@@ -91,11 +84,10 @@ public class LendingController {
         }
     }
 
-    @PostMapping("/acceptReturn/{lendingId}")
-    public ResponseEntity<String> acceptReturnItem(@PathVariable Long lendingId, @RequestParam ItemCondition condition) {
-        Long rejectedById = getAuthenticatedUserId();
+    @PostMapping("/acceptReturn/{lendingId}/user/{userId}")
+    public ResponseEntity<String> acceptReturnItem(@PathVariable Long lendingId, @PathVariable Long userId, @RequestParam ItemCondition condition) {
         try {
-            lendingService.approveReturnRequest(lendingId, condition);
+            lendingService.approveReturnRequest(lendingId, condition, userId);
             return ResponseEntity.ok("Return Request Approved");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
