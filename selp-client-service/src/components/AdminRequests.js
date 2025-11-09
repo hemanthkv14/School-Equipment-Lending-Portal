@@ -64,7 +64,7 @@ export default function AdminRequests() {
         return;
       }
       await approveLoan(userId, lendingId, selectedDueDate[lendingId]);
-      setActionMessage({ type: "success", text: `Loan ID ${lendingId} approved.` });
+      setActionMessage({ type: "success", text: `Loan approved.` });
       fetchRequests();
     } catch (err) {
       setActionMessage({
@@ -78,7 +78,7 @@ export default function AdminRequests() {
     setActionMessage({ type: "", text: "" });
     try {
       await rejectItem(userId,lendingId);
-      setActionMessage({ type: "success", text: `Loan ID ${lendingId} rejected.` });
+      setActionMessage({ type: "success", text: `Loan rejected.` });
       fetchRequests();
     } catch (err) {
       setActionMessage({
@@ -99,10 +99,10 @@ export default function AdminRequests() {
   const handleReturnConfirm = async () => {
     setActionMessage({ type: "", text: "" });
     try {
-      await acceptReturnItem(returnModal.lendingId, returnCondition);
+      await acceptReturnItem(userId, returnModal.lendingId, returnCondition);
       setActionMessage({
         type: "success",
-        text: `Return accepted for Loan ID ${returnModal.lendingId}`,
+        text: `Return accepted for this item`,
       });
       closeReturnModal();
       fetchRequests();

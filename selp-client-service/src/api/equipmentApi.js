@@ -95,8 +95,8 @@ export const approveLoan = async (adminId, lendingId, dueDate) => {
   return response.data;
 };
 
-export const acceptReturnItem = async (lendingId, condition) => {
-  const response = await apiClient.post(`/api/borrowRequests/acceptReturn/${lendingId}`, null, {
+export const acceptReturnItem = async (adminId, lendingId, condition) => {
+  const response = await apiClient.post(`/api/borrowRequests/acceptReturn/${lendingId}/user/${adminId}`, null, {
     params: { condition },
   });
   return response.data;
