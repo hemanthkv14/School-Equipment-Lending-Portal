@@ -88,8 +88,8 @@ export const getAllLendingsOfUser = async (userId) => {
   return response.data;
 };
 
-export const approveLoan = async (lendingId, dueDate) => {
-  const response = await apiClient.post(`/api/borrowRequests/approve/${lendingId}/user/${userId}`, null, {
+export const approveLoan = async (adminId, lendingId, dueDate) => {
+  const response = await apiClient.post(`/api/borrowRequests/approve/${lendingId}/user/${adminId}`, null, {
     params: { dueDate },
   });
   return response.data;
@@ -102,7 +102,7 @@ export const acceptReturnItem = async (lendingId, condition) => {
   return response.data;
 };
 
-export const rejectItem = async (lendingId) => {
-  const response = await apiClient.post(`/api/borrowRequests/reject/${lendingId}/user/${userId}`);
+export const rejectItem = async (adminId, lendingId) => {
+  const response = await apiClient.post(`/api/borrowRequests/reject/${lendingId}/user/${adminId}`);
   return response.data;
 };
