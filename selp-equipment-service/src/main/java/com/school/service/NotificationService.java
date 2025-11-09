@@ -4,19 +4,46 @@ import com.school.entity.Lending;
 import com.school.entity.Notification;
 import com.school.entity.User;
 import com.school.repository.NotificationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * Service for managing notifications within the school system.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *     <li>Create notifications for lending events (approval, rejection, returns).</li>
+ *     <li>Persist notifications in the database for user tracking.</li>
+ *     <li>Optional: handle email notifications (currently commented).</li>
+ * </ul>
+ */
+@Slf4j
 @Service
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
+    /**
+     * Constructs a NotificationService with the given repository.
+     *
+     * @param notificationRepository repository for {@link Notification} entities
+     */
     public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
 
+    /**
+     * Creates and persists a notification for a specific recipient.
+     *
+     * <p>Logs the creation for traceability.
+     *
+     * @param recipient the user who will receive the notification
+     * @param lending the associated lending record
+     * @param type type of notification (e.g., "APPROVED", "REJECTED", "RETURNED")
+     * @param message textual content of the notification
+     */
     public void createNotification(User recipient, Lending lending, String type, String message) {
         Notification notification = new Notification();
         notification.setRecipient(recipient);
@@ -24,40 +51,13 @@ public class NotificationService {
         notification.setType(type);
         notification.setMessage(message);
         notification.setCreatedAt(LocalDateTime.now());
+
         notificationRepository.save(notification);
+
+        log.info("Notification created for user '{}' | lendingId '{}' | type '{}' | message '{}'",
+                recipient.getUserId(),
+                lending != null ? lending.getLendingId() : null,
+                type,
+                message);
     }
 }
-
-//    @Transactional
-//    public void sendNotificationMail(String toEmail, String subject, String body) {
-//        final String fromEmail = "your_email@gmail.com";
-//        final String password = "your_app_password"; // use App Password if 2FA enabled
-//
-//        Properties props = new Properties();
-//        props.put("mail.smtp.host", "smtp.gmail.com");
-//        props.put("mail.smtp.port", "587"); // TLS port
-//        props.put("mail.smtp.auth", "true");
-//        props.put("mail.smtp.starttls.enable", "true");
-//
-//        // Create session
-//        Session session = Session.getInstance(props, new Authenticator() {
-//            protected PasswordAuthentication getPasswordAuthentication() {
-//                return new PasswordAuthentication(fromEmail, password);
-//            }
-//        });
-//
-//        try {
-//            // Create message
-//            Message msg = new MimeMessage(session);
-//            msg.setFrom(new InternetAddress(fromEmail));
-//            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-//            msg.setSubject(subject);
-//            msg.setText(body);
-//
-//            // Send email
-//            Transport.send(msg);
-//            System.out.println("Email sent successfully!");
-//
-//        } catch (MessagingException ignored) {
-//        }
-//    }
