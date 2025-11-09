@@ -123,7 +123,7 @@ public class LendingService {
     }
 
     @Transactional
-    public void approveReturnRequest(Long lendingId, ItemCondition returnedCondition) {
+    public void approveReturnRequest(Long lendingId, ItemCondition returnedCondition, Long approvedBy) {
         Lending lending = lendingRepository.findById(lendingId)
                 .orElseThrow(() -> new EntityNotFoundException("Lending record not found."));
 
@@ -137,7 +137,10 @@ public class LendingService {
 
         equipmentService.updateAvailableCount(item.getEquipment().getEquipmentId(), 1);
 
+        User user = userService.getUserById(approvedBy);
+
         lending.setApprovalStatus(LendingStatus.RETURNED);
+        lending.setAuthorizedBy(user);
         lendingRepository.save(lending);
 
         dueTrackingService.updateReturnDate(lendingId);
