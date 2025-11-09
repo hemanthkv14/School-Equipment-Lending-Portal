@@ -160,6 +160,7 @@ export default function EquipmentList() {
                   className="flex justify-between items-center border p-3 rounded-lg mb-2"
                 >
                   <div>
+                    <p className="text-pink-600 font-semibold">{item.equipmentName}</p>
                     <p className="font-semibold">{item.serialNumber}</p>
                     <p className="text-sm text-gray-600">Condition: {item.condition}</p>
                   </div>
