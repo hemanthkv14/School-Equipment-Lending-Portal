@@ -78,7 +78,7 @@ services:
     container_name: selp-notification
     environment:
       PORT: 4001
-      CRON_SCHEDULE: ${CRON_SCHEDULE:-* * * * *}
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 0 * * *}
       PG_HOST: selp-db
       PG_USER: selp_user
       PG_PASS: selp_password

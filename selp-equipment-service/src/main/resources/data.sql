@@ -30,7 +30,8 @@ INSERT INTO public.categories (name) VALUES
 --------------------------------------------------------------------------------
 
 INSERT INTO public.users (username, email, password_hash, role, name) VALUES
-('admin', 'admin@school.edu', '$2b$10$Gv9pT7TG7NdtcyMgkU.S0.HmGxvbzA26JV/uzcYrVY7ohVutvE.8.', 'admin', 'System Administrator');
+('admin', 'admin@school.edu', '$2b$10$Gv9pT7TG7NdtcyMgkU.S0.HmGxvbzA26JV/uzcYrVY7ohVutvE.8.', 'admin', 'System Administrator'),
+('pratheusha', 'pratheusha.kk@gmail.com', '$2b$10$k6iHJUbqwWPnRY6PR7RyAO0fwgrJtF80Znrgw8Jr.9', 'student', 'Pratheusha');
 -- ('pratheusha-admin', 'prat@school.edu', 'hash_admin1', 'ADMIN', 'Pratheusha V'),
 -- ('monica-staff', 'monica@school.edu', 'hash_staff1', 'STAFF', 'Monica K'),
 -- ('hemanth-stu', 'pratheusha@outlook.com', 'hash_stud1', 'STUDENT', 'Hemanth R'),
