@@ -36,6 +36,7 @@ export default function AdminRequests() {
   const [selectedDueDate, setSelectedDueDate] = useState({});
   const [returnModal, setReturnModal] = useState({ open: false, lendingId: null });
   const [returnCondition, setReturnCondition] = useState("GOOD");
+  const userId = localStorage.getItem("userId");
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -62,7 +63,7 @@ export default function AdminRequests() {
         setActionMessage({ type: "error", text: "Please select a due date first." });
         return;
       }
-      await approveLoan(lendingId, selectedDueDate[lendingId]);
+      await approveLoan(userId, lendingId, selectedDueDate[lendingId]);
       setActionMessage({ type: "success", text: `Loan ID ${lendingId} approved.` });
       fetchRequests();
     } catch (err) {
@@ -76,7 +77,7 @@ export default function AdminRequests() {
   const handleReject = async (lendingId) => {
     setActionMessage({ type: "", text: "" });
     try {
-      await rejectItem(lendingId);
+      await rejectItem(userId,lendingId);
       setActionMessage({ type: "success", text: `Loan ID ${lendingId} rejected.` });
       fetchRequests();
     } catch (err) {
