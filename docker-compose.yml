@@ -78,12 +78,14 @@ services:
     container_name: selp-notification
     environment:
       PORT: 4001
-      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 0 * * *}
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-* * * * *}
       PG_HOST: selp-db
       PG_USER: selp_user
       PG_PASS: selp_password
       PG_DB: selp_db
       PG_PORT: 5432
+      EMAIL_USER: fsadassignment@gmail.com
+      EMAIL_PASS: lsxw lxhw iuvw wuxj
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
