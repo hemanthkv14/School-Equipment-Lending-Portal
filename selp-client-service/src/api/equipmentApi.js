@@ -42,7 +42,7 @@ export const deleteIndividualItem = async (itemId) => {
 
 export const deleteAllItems = async (itemIds) => {
   const response = await apiClient.delete(`/api/equipment/deleteAllItems`, {
-    data: itemIds,
+    data: JSON.stringify(itemIds),
   });
   return response.data;
 };
